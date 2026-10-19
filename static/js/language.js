@@ -58,7 +58,14 @@
         const menu = picker.querySelector(".language-menu");
         if (!toggle || !menu) return;
         toggle.setAttribute("aria-expanded", String(open));
-        menu.hidden = !open;
+        if (picker.classList.contains("language-picker--home")) {
+            menu.hidden = false;
+            menu.inert = !open;
+            menu.setAttribute("aria-hidden", String(!open));
+            picker.classList.toggle("is-open", open);
+        } else {
+            menu.hidden = !open;
+        }
     }
 
     window.addEventListener("pageshow", (event) => {
@@ -74,6 +81,7 @@
         document.querySelectorAll(".language-toggle").forEach((button) => {
             const picker = button.closest(".language-picker");
             if (picker) {
+                setLanguageMenuOpen(picker, false);
                 button.addEventListener("click", (event) => {
                     event.stopPropagation();
                     const shouldOpen = button.getAttribute("aria-expanded") !== "true";
