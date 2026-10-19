@@ -1,0 +1,7 @@
+/* Observations share the existing essay typography and reading width. */
+.observation-source { margin: 0 0 32px; }
+.observation-source a { display: block; }
+.observation-source img { display: block; width: 100%; height: auto; }
+.observation-source a:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+.observation-source figcaption { margin-top: 10px; color: var(--secondary); font-size: 13px; line-height: 1.6; }
+.observation-thoughts h2 { margin: 0 0 16px; font: 600 18px/1.5 var(--site-ui-font); }

@@ -212,4 +212,10 @@
     <loc>https://zhuzhenfang.com/media/huickathon-s2/</loc>
     <lastmod>2026-10-09</lastmod>
   </url>
+  <url>
+    <loc>https://zhuzhenfang.com/notes/observations/</loc>
+    <lastmod>2026-10-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>
