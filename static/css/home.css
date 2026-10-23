@@ -480,6 +480,14 @@ html[data-language="zh"] .bio-view-panel [data-lang="zh"] {
     line-height: 1.45;
 }
 
+.education-row {
+    padding-bottom: calc(0.72em + 10px);
+}
+
+.education-row .row-copy small {
+    margin-top: calc(0.1rem + 8px);
+}
+
 .research-heading {
     display: flex;
     flex-wrap: wrap;
