@@ -729,6 +729,31 @@ a.index-row {
         text-align: left;
     }
 
+    html[data-language="zh"] .education-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+        row-gap: 0.6rem;
+    }
+
+    html[data-language="zh"] .education-row .row-copy {
+        display: contents;
+    }
+
+    html[data-language="zh"] .education-row .row-copy > span {
+        grid-column: 1 / -1;
+    }
+
+    html[data-language="zh"] .education-row .row-copy small {
+        grid-column: 1;
+        grid-row: 2;
+        margin-top: 0;
+    }
+
+    html[data-language="zh"] .education-row time {
+        grid-column: 2;
+        grid-row: 2;
+        text-align: right;
+    }
+
     .dream-entry-row {
         grid-template-columns: minmax(0, 1fr) auto;
         align-items: end;
