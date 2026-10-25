@@ -96,10 +96,13 @@
         const button = document.querySelector(".site-language-toggle");
         if (!button) return;
         const language = currentLanguage();
-        button.textContent = language === "zh" ? "中文 ▾" : "EN ▾";
+        button.textContent = language === "zh" ? "中文" : "EN";
         const label = language === "zh" ? "选择语言" : "Choose language";
         button.setAttribute("aria-label", label);
         button.title = label;
+        document.querySelectorAll("[data-site-language]").forEach((option) => {
+            option.setAttribute("aria-checked", String(option.dataset.siteLanguage === language));
+        });
     }
 
     function applyLanguage(language, remember = true) {
@@ -126,10 +129,18 @@
         if (document.querySelector(".language-picker, .site-language-picker")) return;
         const wrapper = document.createElement("div");
         wrapper.className = "site-language-picker";
-        wrapper.innerHTML = '<button class="site-language-toggle" type="button" aria-expanded="false" aria-controls="site-language-menu"></button><div class="site-language-menu" id="site-language-menu" hidden><button type="button" data-site-language="zh">中文</button><button type="button" data-site-language="en">English</button></div>';
+        wrapper.innerHTML = '<button class="site-language-toggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="site-language-menu"></button><div class="site-language-menu" id="site-language-menu" role="menu" aria-label="Language" hidden><button type="button" role="menuitemradio" data-site-language="en">English</button><button type="button" role="menuitemradio" data-site-language="zh">中文</button></div>';
         const toggle = wrapper.querySelector(".site-language-toggle");
         const menu = wrapper.querySelector(".site-language-menu");
-        function closeMenu() { menu.hidden = true; toggle.setAttribute("aria-expanded", "false"); }
+        function setMenuOpen(open) {
+            menu.hidden = false;
+            menu.inert = !open;
+            menu.setAttribute("aria-hidden", String(!open));
+            toggle.setAttribute("aria-expanded", String(open));
+            wrapper.classList.toggle("is-open", open);
+        }
+        function closeMenu() { setMenuOpen(false); }
+        closeMenu();
         wrapper.querySelectorAll("[data-site-language]").forEach(option => {
             option.addEventListener("click", () => {
                 applyLanguage(option.dataset.siteLanguage);
@@ -142,8 +153,7 @@
             if (event.key === "Escape") { closeMenu(); toggle.focus(); }
         });
         wrapper.querySelector("button").addEventListener("click", () => {
-            menu.hidden = !menu.hidden;
-            toggle.setAttribute("aria-expanded", String(!menu.hidden));
+            setMenuOpen(toggle.getAttribute("aria-expanded") !== "true");
         });
         (document.querySelector(".site-chrome") || document.body).appendChild(wrapper);
     }

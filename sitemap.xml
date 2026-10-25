@@ -68,7 +68,7 @@
   </url>
   <url>
     <loc>https://zhuzhenfang.com/notes/things-i-believe/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -211,5 +211,17 @@
   <url>
     <loc>https://zhuzhenfang.com/media/huickathon-s2/</loc>
     <lastmod>2026-10-09</lastmod>
+  </url>
+  <url>
+    <loc>https://zhuzhenfang.com/notes/shipping-is-thinking/</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://zhuzhenfang.com/notes/organization-beyond-products/</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>

@@ -121,3 +121,97 @@ a.bio-product-link:focus-visible {
     text-decoration-thickness: 1px;
     text-underline-offset: 0.18em;
 }
+
+/* Language choices slide out within the masthead. */
+.site-chrome :is(.language-picker, .site-language-picker) {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    flex-shrink: 0;
+}
+.site-chrome :is(.language-picker, .site-language-picker) :is(.language-toggle, .site-language-toggle) {
+    min-width: 64px;
+    gap: 9px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 0;
+    color: var(--nav, currentColor);
+    font: 12px/1.4 var(--site-ui-font);
+}
+.site-chrome :is(.language-picker, .site-language-picker) :is(.language-toggle, .site-language-toggle)::after {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: rotate(135deg);
+    transition: transform 220ms ease;
+}
+.site-chrome :is(.language-picker, .site-language-picker) :is(.language-toggle, .site-language-toggle)[aria-expanded="true"]::after {
+    transform: rotate(-45deg);
+}
+.site-chrome :is(.language-picker, .site-language-picker) :is(.language-menu, .site-language-menu) {
+    position: static;
+    display: flex;
+    align-items: center;
+    width: 128px;
+    max-width: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: max-width 220ms ease, opacity 180ms ease, transform 220ms ease, visibility 220ms;
+}
+.site-chrome :is(.language-picker, .site-language-picker).is-open :is(.language-menu, .site-language-menu) {
+    max-width: 128px;
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(0);
+}
+.site-chrome :is(.language-picker, .site-language-picker) :is(.language-menu, .site-language-menu) :is(a, button) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 64px;
+    width: 64px;
+    min-height: 44px;
+    padding: 0 8px;
+    border-radius: 0;
+    color: var(--nav, currentColor);
+    font: 12px/1.4 var(--site-ui-font);
+    white-space: nowrap;
+}
+.site-chrome :is(.language-picker, .site-language-picker) :is(.language-menu, .site-language-menu) :is(a, button)[aria-checked="true"] {
+    color: var(--ink, currentColor);
+    text-decoration: underline;
+    text-underline-offset: 5px;
+}
+.site-chrome :is(.language-picker, .site-language-picker) :is(.language-menu, .site-language-menu) :is(a, button)::after { content: none; }
+.site-chrome :is(.language-picker, .site-language-picker) a:focus-visible { outline-offset: -3px; }
+.site-chrome .site-home-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) {
+    .site-chrome :is(.language-picker, .site-language-picker) :is(.language-menu, .site-language-menu),
+    .site-chrome :is(.language-picker, .site-language-picker) :is(.language-toggle, .site-language-toggle)::after { transition: none; }
+}
+
+.site-chrome :is(.language-toggle, .site-language-toggle) {
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    letter-spacing: normal;
+}
+.site-chrome :is(.language-toggle, .site-language-toggle):hover {
+    background: transparent;
+    color: var(--ink, currentColor);
+}
+.site-chrome .site-return { min-width: 0; }
+.site-chrome .site-return > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

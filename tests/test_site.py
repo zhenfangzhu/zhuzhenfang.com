@@ -645,8 +645,8 @@ class SiteContractTests(unittest.TestCase):
         self.assertEqual(note.count('class="essay-pair"'), 4)
         self.assertNotIn('<strong>Creator.</strong>', note)
 
-    def test_things_i_believe_is_the_shipping_manifesto(self):
-        note = read("notes/things-i-believe/index.html")
+    def test_shipping_manifesto_is_an_independent_article(self):
+        note = read("notes/shipping-is-thinking/index.html")
 
         for phrase in (
             "Shipping fast beats the best strategy.",
@@ -670,7 +670,19 @@ class SiteContractTests(unittest.TestCase):
         self.assertIn('/static/css/notes.css', note)
         self.assertNotIn('class="belief-card"', note)
         self.assertNotIn('class="belief-kicker"', note)
-        self.assertIn('data-title-zh="我所相信的事 ｜ 朱振方"', note)
+        self.assertIn('href="/notes/things-i-believe/"', note)
+
+    def test_belief_collection_links_to_independent_articles(self):
+        collection = read("notes/things-i-believe/index.html")
+        organization = read("notes/organization-beyond-products/index.html")
+        for slug in ("shipping-is-thinking", "organization-beyond-products"):
+            self.assertIn(f'href="/notes/{slug}/"', collection)
+            self.assertIn(f"<loc>https://zhuzhenfang.com/notes/{slug}/</loc>", read("sitemap.xml"))
+        self.assertIn('"@type": "CollectionPage"', collection)
+        self.assertNotIn("我曾经以为，想清楚以后再开始", collection)
+        self.assertNotIn("Shipping fast beats the best strategy.", organization)
+        self.assertIn("组织复利如果。如果创业十年", organization)
+        self.assertIn('href="/notes/things-i-believe/"', organization)
 
     def test_homepage_has_busuanzi_site_stats(self):
         index = read("index.html")

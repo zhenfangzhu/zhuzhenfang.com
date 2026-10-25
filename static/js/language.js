@@ -38,7 +38,7 @@
             button.setAttribute("aria-label", label);
             button.title = label;
             const text = nextLanguage === "zh" ? "中文" : "EN";
-            button.textContent = button.closest(".language-picker--home") ? text : `${text} ▾`;
+            button.textContent = text;
         });
         document.querySelectorAll("[data-language-option]").forEach((option) => {
             option.setAttribute("aria-checked", String(option.dataset.languageOption === nextLanguage));
@@ -58,14 +58,10 @@
         const menu = picker.querySelector(".language-menu");
         if (!toggle || !menu) return;
         toggle.setAttribute("aria-expanded", String(open));
-        if (picker.classList.contains("language-picker--home")) {
-            menu.hidden = false;
-            menu.inert = !open;
-            menu.setAttribute("aria-hidden", String(!open));
-            picker.classList.toggle("is-open", open);
-        } else {
-            menu.hidden = !open;
-        }
+        menu.hidden = false;
+        menu.inert = !open;
+        menu.setAttribute("aria-hidden", String(!open));
+        picker.classList.toggle("is-open", open);
     }
 
     window.addEventListener("pageshow", (event) => {
