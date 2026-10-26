@@ -43,7 +43,10 @@ class Element {
     }
 
     setAttribute(name, value) { this[name] = value; }
-    focus() { this.focused = true; }
+    focus() {
+        this.focused = true;
+        if (this.ownerDocument) this.ownerDocument.activeElement = this;
+    }
     select() { this.selected = true; }
     reset() {}
 }
@@ -138,9 +141,15 @@ async function setup(options = {}) {
     for (const name of ["localStorage", "sessionStorage"]) {
         Object.defineProperty(window, name, { get() { throw new Error(`Unexpected persistent storage: ${name}`); } });
     }
+    const document = {
+        activeElement: null,
+        getElementById: get,
+        querySelectorAll: selector => selector === ".mode-tab" ? tabs : []
+    };
+    elements.forEach(element => { element.ownerDocument = document; });
     const context = vm.createContext({
         window,
-        document: { getElementById: get, querySelectorAll: selector => selector === ".mode-tab" ? tabs : [] },
+        document,
         clearTimeout: id => timers.delete(id),
         TextEncoder,
         TextDecoder,
@@ -154,7 +163,7 @@ async function setup(options = {}) {
     await flush();
 
     return {
-        get, window, service, record, publicWrites, privateWrites, clipboard, timers, flush, privateResult, rpcCalls,
+        get, window, document, service, record, publicWrites, privateWrites, clipboard, timers, flush, privateResult, rpcCalls,
         async tick() {
             const callbacks = [...timers.values()];
             timers.clear();
@@ -168,6 +177,11 @@ async function setup(options = {}) {
             return element.emit("input");
         },
         click(id) { return get(id).disabled ? Promise.resolve() : get(id).emit("click"); },
+        async key(id, key) {
+            const event = { key, defaultPrevented: false, preventDefault() { this.defaultPrevented = true; } };
+            await get(id).emit("keydown", event);
+            return event;
+        },
         leave() {
             const event = { defaultPrevented: false, preventDefault() { this.defaultPrevented = true; } };
             windowEvents.emit("beforeunload", event);
@@ -189,6 +203,96 @@ async function setup(options = {}) {
         }
     };
 }
+
+test("mode tabs have one initial Tab stop and support arrow wraparound, Home, and End", async () => {
+    const board = await setup();
+    const assertSelection = mode => {
+        for (const candidate of ["public", "private"]) {
+            const selected = candidate === mode;
+            assert.equal(board.get(`${candidate}-tab`).tabIndex, selected ? 0 : -1);
+            assert.equal(board.get(`${candidate}-tab`)["aria-selected"], String(selected));
+            assert.equal(board.get(`${candidate}-mode`).hidden, !selected);
+        }
+    };
+    assertSelection("public");
+    board.get("public-tab").focus();
+    for (const [from, key, to] of [
+        ["public", "ArrowLeft", "private"],
+        ["private", "ArrowRight", "public"],
+        ["public", "ArrowRight", "private"],
+        ["private", "ArrowLeft", "public"],
+        ["public", "End", "private"],
+        ["private", "Home", "public"]
+    ]) {
+        assert.equal((await board.key(`${from}-tab`, key)).defaultPrevented, true);
+        assertSelection(to);
+        assert.equal(board.document.activeElement, board.get(`${to}-tab`));
+    }
+    assert.equal(board.get("private-room-password").focused, undefined, "Arrow navigation must leave focus on the selected tab");
+    assert.equal((await board.key("public-tab", "Tab")).defaultPrevented, false, "Tab remains available to enter the panel");
+});
+
+test("clicking the private tab still focuses the PIN, while selecting the current tab keeps its panel", async () => {
+    const board = await setup();
+    await board.click("private-tab");
+    assert.equal(board.document.activeElement, board.get("private-room-password"));
+    await board.click("show-create-room");
+    board.get("private-tab").focus();
+    await board.key("private-tab", "End");
+    assert.equal(board.get("private-create-panel").hidden, false);
+    assert.equal(board.document.activeElement, board.get("private-tab"));
+});
+
+test("keyboard mode changes wait for a private save and preserve selection and draft when it fails", async () => {
+    const board = await setup();
+    await board.openPrivate();
+    board.input("private-board-editor", "Unsaved private draft");
+    const pending = deferred();
+    board.service.savePrivate = () => pending.promise;
+    board.get("private-tab").focus();
+    const switching = board.key("private-tab", "Home");
+    await board.flush();
+    assert.equal(board.get("public-tab").disabled, true);
+    assert.equal(board.get("private-tab").disabled, true);
+    assert.equal(board.get("private-tab")["aria-selected"], "true");
+    assert.equal(board.get("public-tab").tabIndex, -1);
+    await board.key("private-tab", "ArrowLeft");
+    assert.equal(board.get("public-mode").hidden, true, "A second keyboard action cannot bypass the pending save");
+    pending.resolve({ data: null, error: new Error("Offline") });
+    await switching;
+    assert.equal(board.get("private-tab")["aria-selected"], "true");
+    assert.equal(board.get("public-tab").tabIndex, -1);
+    assert.equal(board.get("public-mode").hidden, true);
+    assert.equal(board.get("private-board-editor").value, "Unsaved private draft");
+    assert.equal(board.document.activeElement, board.get("private-board-editor"));
+
+    board.service.savePrivate = async () => board.privateResult();
+    board.get("private-tab").focus();
+    await board.key("private-tab", "ArrowRight");
+    assert.equal(board.savedPrivateText(1), "Unsaved private draft");
+    assert.equal(board.get("public-tab")["aria-selected"], "true");
+    assert.equal(board.get("private-board-editor").value, "");
+    assert.equal(board.document.activeElement, board.get("public-tab"));
+});
+
+test("keyboard mode changes cannot bypass the private-room opening guard", async () => {
+    const board = await setup();
+    await board.click("private-tab");
+    const pending = deferred();
+    board.service.readPrivate = () => pending.promise;
+    board.get("private-room-password").value = "123456";
+    const opening = board.get("private-room-form").emit("submit");
+    await board.flush();
+    assert.equal(board.get("private-tab").disabled, true);
+    await board.key("private-tab", "Home");
+    assert.equal(board.get("private-tab")["aria-selected"], "true");
+    assert.equal(board.get("public-mode").hidden, true);
+    pending.resolve({ data: board.record, error: null });
+    await opening;
+    assert.equal(board.get("private-board-editor").value, "Private A");
+    assert.equal(board.get("private-tab")["aria-selected"], "true");
+    assert.equal(board.document.activeElement, board.get("private-board-editor"));
+});
 
 test("public edit reverted before saving accepts later realtime updates", async () => {
     const board = await setup();

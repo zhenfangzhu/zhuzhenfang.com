@@ -82,7 +82,7 @@ a:hover {
     position: fixed;
     top: 0.75rem;
     left: 0.75rem;
-    z-index: 20;
+    z-index: 60;
     min-height: 44px;
     padding: 0.55rem 0.85rem;
     background: var(--page);
@@ -102,6 +102,7 @@ main.site-shell {
     min-height: 100vh;
     padding: var(--page-pad);
     container-type: inline-size;
+    scroll-margin-top: 72px;
 }
 
 article.content-frame {

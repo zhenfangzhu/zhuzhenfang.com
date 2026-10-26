@@ -337,13 +337,13 @@
         privateBoardEditor.focus();
     }
 
-    function showJoinPanel() {
+    function showJoinPanel(focusInput = true) {
         privateCreatePanel.hidden = true;
         privateWorkspace.hidden = true;
         privateGate.hidden = false;
         privateRoomForm.hidden = false;
         setCreateMessage("");
-        privateRoomPassword.focus();
+        if (focusInput) privateRoomPassword.focus();
     }
 
     function showCreatePanel() {
@@ -822,17 +822,38 @@
         schedulePrivateSave();
     });
 
-    modeTabs.forEach((tab) => {
-        tab.addEventListener("click", async () => {
-            if (privateOpening || privateLockPending) return;
-            const mode = tab.dataset.mode;
+    async function activateModeTab(tab, focusTab = false) {
+        if (tab.disabled || privateOpening || privateLockPending) return false;
+        if (focusTab && tab.tabIndex === 0) {
+            tab.focus();
+            return true;
+        }
+        const mode = tab.dataset.mode;
 
-            if (mode === "public" && privateRoomKey) {
-                if (!await lockPrivateRoom()) return;
-            }
+        if (mode === "public" && privateRoomKey) {
+            if (!await lockPrivateRoom()) return false;
+        }
 
-            setMode(mode);
-            if (mode === "private" && !privateRoomKey) showJoinPanel();
+        setMode(mode);
+        if (mode === "private" && !privateRoomKey) showJoinPanel(!focusTab);
+        if (focusTab) tab.focus();
+        return true;
+    }
+
+    setMode("public");
+    modeTabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => activateModeTab(tab));
+        tab.addEventListener("keydown", (event) => {
+            if (event.defaultPrevented || event.isComposing || event.altKey || event.ctrlKey || event.metaKey ||
+                tab.disabled || privateOpening || privateLockPending) return;
+            let nextIndex;
+            if (event.key === "ArrowLeft") nextIndex = (index - 1 + modeTabs.length) % modeTabs.length;
+            else if (event.key === "ArrowRight") nextIndex = (index + 1) % modeTabs.length;
+            else if (event.key === "Home") nextIndex = 0;
+            else if (event.key === "End") nextIndex = modeTabs.length - 1;
+            else return;
+            event.preventDefault();
+            return activateModeTab(modeTabs[nextIndex], true);
         });
     });
 
