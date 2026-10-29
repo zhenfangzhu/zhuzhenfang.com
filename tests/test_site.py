@@ -688,7 +688,7 @@ class SiteContractTests(unittest.TestCase):
         index = read("index.html")
         css = read("static/css/home.css")
         self.assertIn(
-            'src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"',
+            'src="/static/js/visit-stats.js?v=2026102901"',
             index,
         )
         self.assertIn('id="busuanzi_container_site_pv"', index)
@@ -710,7 +710,7 @@ class SiteContractTests(unittest.TestCase):
         ):
             page = read(path)
             self.assertIn(
-                'src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"',
+                'src="/static/js/visit-stats.js?v=2026102901"',
                 page,
             )
             self.assertNotIn('id="busuanzi_container_site_pv"', page)
