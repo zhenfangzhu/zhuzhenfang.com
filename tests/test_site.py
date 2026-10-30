@@ -688,7 +688,7 @@ class SiteContractTests(unittest.TestCase):
         index = read("index.html")
         css = read("static/css/home.css")
         self.assertIn(
-            'src="/static/js/visit-stats.js?v=2026102901"',
+            'src="/static/js/visit-stats.js?v=2026103001"',
             index,
         )
         self.assertIn('id="busuanzi_container_site_pv"', index)
