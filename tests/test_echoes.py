@@ -188,6 +188,13 @@ class EchoesPublicationTests(unittest.TestCase):
                 for name, expected in (("og:title", entry["title"]), ("og:description", entry["summary"]), ("og:url", self.article_url(entry)), ("og:type", "article")):
                     meta = self.assert_one(page.elements("meta", property=name), f"Expected one {name}")
                     self.assertEqual(meta.attrs.get("content"), expected)
+                # Directory metadata must not leak into the generated article card.
+                for name, expected in (("twitter:card", "summary_large_image"),
+                                       ("twitter:title", entry["title"]),
+                                       ("twitter:description", entry["summary"]),
+                                       ("twitter:image", f"https://zhuzhenfang.com/static/assets/echoes/{entry['id']}.png")):
+                    meta = self.assert_one(page.elements("meta", name=name), f"Expected one {name}")
+                    self.assertEqual(meta.attrs.get("content"), expected)
 
     def test_article_return_routes_and_available_source_urls_are_preserved(self):
         for entry in self.published:

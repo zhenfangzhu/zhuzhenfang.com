@@ -155,7 +155,7 @@ def share_page(entry, template):
     title, summary = escape(entry['title'], quote=True), escape(entry['summary'], quote=True)
     head = template.split('<body')[0].replace('    {{STRUCTURED_DATA}}\n', '')
     head = re.sub(r'<title>.*?</title>', f'<title>{title}｜回声</title>', head)
-    head = re.sub(r'    <(?:meta (?:name="description"|property="og:[^"]+")[^>]*|link rel="canonical"[^>]*)>\n', '', head)
+    head = re.sub(r'    <(?:meta (?:name="(?:description|twitter:[^"]+)"|property="og:[^"]+")[^>]*|link rel="canonical"[^>]*)>\n', '', head)
     head = re.sub(r'    <script defer src="/static/js/echoes.js[^>]*></script>\n', '', head)
     metadata = f'''    <meta name="description" content="{summary}">
     <link rel="canonical" href="{url}">
@@ -172,6 +172,7 @@ def share_page(entry, template):
     <meta name="twitter:title" content="{title}">
     <meta name="twitter:description" content="{summary}">
     <meta name="twitter:image" content="{image}">
+    <meta name="twitter:image:alt" content="{title} — {summary}">
 '''
     metadata += '    ' + structured_data({
         '@context': 'https://schema.org',
